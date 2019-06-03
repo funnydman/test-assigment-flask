@@ -109,3 +109,5 @@ venv.bak/
 # project
 **/node_modules/**
 sqlite.db
+csv/
+test.csv

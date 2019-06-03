@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 api = Api(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sqlite.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://selena:selena@localhost/mydatabase'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secret-data'
 
@@ -38,13 +38,15 @@ def check_if_token_in_blacklist(decrypted_token):
     return users_models.RevokedTokenModel.is_jti_blacklisted(jti)
 
 
-api.add_resource(user_resources.UserRegistration, '/registration')
-api.add_resource(user_resources.UserLogin, '/login')
-api.add_resource(user_resources.UserLogoutAccess, '/logout/access')
-api.add_resource(user_resources.UserLogoutRefresh, '/logout/refresh')
-api.add_resource(user_resources.TokenRefresh, '/token/refresh')
-api.add_resource(user_resources.AllUsers, '/users')
-api.add_resource(main_resources.GetSecretResource, '/secret')
+API_VERSION = '/api/v1'
+
+api.add_resource(user_resources.UserSignUp, f'{API_VERSION}/signup')
+api.add_resource(user_resources.UserSignIn, f'{API_VERSION}/signin')
+api.add_resource(user_resources.UserLogoutAccess, f'{API_VERSION}/signout')
+api.add_resource(user_resources.UserLogoutRefresh, f'{API_VERSION}/signout/refresh')
+api.add_resource(user_resources.TokenRefresh, f'{API_VERSION}/token/refresh')
+api.add_resource(user_resources.AllUsers, f'{API_VERSION}/users')
+api.add_resource(main_resources.UploadCSVFile, f'{API_VERSION}/upload')
 
 api.add_resource(main_resources.Index, '/')
 

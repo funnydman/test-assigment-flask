@@ -4,3 +4,6 @@ Flask-RESTful==0.3.7
 Flask-SQLAlchemy==2.4.0
 passlib==1.7.1
 python-dotenv==0.10.3
+pytest==4.6.1
+SQLAlchemy-Utils=0.33.11
+psycopg2==2.8.2

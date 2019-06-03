@@ -1,4 +1,5 @@
 from passlib.hash import pbkdf2_sha256 as sha256
+from sqlalchemy_utils import EmailType
 
 from src.run import db
 
@@ -9,6 +10,9 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
+    name = db.Column(db.String(120), nullable=False)
+    surname = db.Column(db.String(120), nullable=False)
+    email = db.Column(EmailType, unique=True, nullable=False)
 
     def save_to_db(self):
         db.session.add(self)
@@ -17,6 +21,10 @@ class User(db.Model):
     @classmethod
     def find_by_username(cls, username):
         return cls.query.filter_by(username=username).first()
+
+    @classmethod
+    def find_by_email(cls, email):
+        return cls.query.filter_by(email=email).first()
 
     @classmethod
     def return_all(cls):
