@@ -27,6 +27,10 @@ jwt = JWTManager(app)
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 
+from src.main import cli
+
+app.cli.add_command(cli.drop_db)
+
 
 @jwt.token_in_blacklist_loader
 def check_if_token_in_blacklist(decrypted_token):
