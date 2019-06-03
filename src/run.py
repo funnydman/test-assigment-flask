@@ -12,7 +12,8 @@ app.config['SECRET_KEY'] = 'secret-data'
 
 db = SQLAlchemy(app)
 
-from src.users import models, resources
+from src.users import models, resources as user_resources
+from src.main import models, resources as main_resources
 
 
 @app.before_first_request
@@ -33,7 +34,8 @@ def check_if_token_in_blacklist(decrypted_token):
     return models.RevokedTokenModel.is_jti_blacklisted(jti)
 
 
-api.add_resource(resources.UserRegistration, '/registration')
+api.add_resource(user_resources.UserRegistration, '/registration')
+api.add_resource(main_resources.Index, '/')
 
 if __name__ == '__main__':
     app.run()
