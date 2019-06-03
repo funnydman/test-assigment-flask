@@ -12,8 +12,8 @@ app.config['SECRET_KEY'] = 'secret-data'
 
 db = SQLAlchemy(app)
 
-from src.users import models, resources as user_resources
-from src.main import models, resources as main_resources
+from src.users import models as users_models, resources as user_resources
+from src.main import resources as main_resources
 
 
 @app.before_first_request
@@ -31,10 +31,17 @@ app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 @jwt.token_in_blacklist_loader
 def check_if_token_in_blacklist(decrypted_token):
     jti = decrypted_token['jti']
-    return models.RevokedTokenModel.is_jti_blacklisted(jti)
+    return users_models.RevokedTokenModel.is_jti_blacklisted(jti)
 
 
 api.add_resource(user_resources.UserRegistration, '/registration')
+api.add_resource(user_resources.UserLogin, '/login')
+api.add_resource(user_resources.UserLogoutAccess, '/logout/access')
+api.add_resource(user_resources.UserLogoutRefresh, '/logout/refresh')
+api.add_resource(user_resources.TokenRefresh, '/token/refresh')
+api.add_resource(user_resources.AllUsers, '/users')
+api.add_resource(main_resources.GetSecretResource, '/secret')
+
 api.add_resource(main_resources.Index, '/')
 
 if __name__ == '__main__':
