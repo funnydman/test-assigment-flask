@@ -1,0 +1,22 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+passlib = "==1.7.1"
+python-dotenv = "==0.10.3"
+pytest = "==4.6.1"
+psycopg2 = "==2.8.2"
+Flask = "==1.0.3"
+Flask-JWT-Extended = "==3.18.2"
+Flask-RESTful = "==0.3.7"
+Flask-SQLAlchemy = "==2.4.0"
+SQLAlchemy-Utils = "==0.33.11"
+requests = "==2.22.0"
+pdfkit = "==0.6.1"
+
+[requires]
+python_version = "3.7"

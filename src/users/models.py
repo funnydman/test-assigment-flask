@@ -1,7 +1,7 @@
 from passlib.hash import pbkdf2_sha256 as sha256
 from sqlalchemy_utils import EmailType
 
-from src.run import db
+from src.app import db
 
 
 class User(db.Model):
@@ -34,15 +34,15 @@ class User(db.Model):
                 'password': x.password
             }
 
-        return {'users': list(map(lambda x: to_json(x), User.query.all()))}
+        return {'users': list(map(to_json, User.query.all()))}
 
     @classmethod
     def delete_all(cls):
         try:
             num_rows_deleted = db.session.query(cls).delete()
             db.session.commit()
-            return {'message': '{} row(s) deleted'.format(num_rows_deleted)}
-        except:
+            return {'message': f'{num_rows_deleted} row(s) deleted'}
+        except Exception as e:
             return {'message': 'Something went wrong'}
 
     @staticmethod
