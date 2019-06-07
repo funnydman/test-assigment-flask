@@ -62,13 +62,15 @@ class UserSignIn(Resource):
 
     def post(self):
         data = self.parser.parse_args()
+        current_user = None
         if data.get('username') and data.get('email'):
             return {'message': 'Use username or email not both at the same time to sign in'}
         elif data.get('username'):
             current_user = User.find_by_username(data['username'])
         elif data.get('email'):
             current_user = User.find_by_email(data['email'])
-        else:
+
+        if current_user is None:
             return {'message': f"User {data['username']} doesn\'t exist"}
 
         if User.verify_hash(data['password'], current_user.password):
