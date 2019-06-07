@@ -19,12 +19,9 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(
 
 TEST_FOLDER_PATH = os.path.join(PROJECT_DIR, 'tests')
 
-DATABASE_NAME = "test.sqlite"
-
-DATABASE_SOURCE = os.path.join(TEST_FOLDER_PATH, DATABASE_NAME)
-
-DATABASE = {'drivername': 'sqlite',
-            'database': DATABASE_SOURCE
-            }
+DATABASE = {
+    'drivername': 'sqlite',
+    'database': ':memory:'
+}
 
 SQLALCHEMY_DATABASE_URI = URL(**DATABASE)
