@@ -17,6 +17,7 @@ Flask-SQLAlchemy = "==2.4.0"
 SQLAlchemy-Utils = "==0.33.11"
 requests = "==2.22.0"
 pdfkit = "==0.6.1"
+requests-mock = "==1.6.0"
 
 [requires]
 python_version = "3"

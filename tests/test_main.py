@@ -1,8 +1,9 @@
 import base64
 import unittest
 
-from src.app import app
-from src.app import db
+import requests_mock
+
+from src.app import app, db
 from src.run import API_VERSION
 from src.users.models import User
 from tests import utils
@@ -17,6 +18,7 @@ TEST_USER = {
 
 
 class TestUsersModels(unittest.TestCase):
+
     def setUp(self):
         utils.init_test_database()
         self.app = app.test_client()
@@ -34,7 +36,16 @@ class TestUsersModels(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 
+    def get_token(self):
+        data = {
+            'username': TEST_USER['username'],
+            'password': TEST_USER['password']
+        }
+        res = self.app.post(f'{API_VERSION}/signin', data=data)
+        return res.get_json()['access_token']
+
     def test_upload_csv_file(self):
+        # TODO: do not store file in the project!
         content = b"first,second,third"
         content_encoded = base64.b64encode(content)
         data = {
@@ -44,3 +55,18 @@ class TestUsersModels(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.get_json()['message'], 'File was decoded and saved')
+
+    def test_get_countries_population(self):
+        actual_data = [{
+            'name': 'Afghanistan', 'capital': 'Kabul', 'subregion': 'Southern Asia',
+            'population': 27657145}]
+        expected_data = {
+            'Afghanistan': 27657145
+        }
+        with requests_mock.Mocker() as m:
+            m.get('https://restcountries.eu/rest/v2/all', json=actual_data)
+
+            res = self.app.get(f'{API_VERSION}/countries/population', headers={'access_token_cookie': self.get_token()})
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.get_json(), expected_data)
