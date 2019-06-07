@@ -70,3 +70,26 @@ class TestUsersModels(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.get_json(), expected_data)
+
+    def test_countries_csv(self):
+        keys = ('name', 'capital', 'region', 'lat', 'long', 'population', 'alpha3Code')
+        actual_data = [{
+            "name": "Afghanistan",
+            "capital": "Kabul",
+            "region": "Asia",
+            "subregion": "Southern Asia",
+            "population": 27657145,
+            "latlng": [
+                33,
+                65
+            ],
+            "alpha3Code": "ASM"
+        }]
+
+        with requests_mock.Mocker() as m:
+            m.get('https://restcountries.eu/rest/v2/all', json=actual_data)
+            res = self.app.get(f'{API_VERSION}/countries/csv', headers={'access_token_cookie': self.get_token()})
+        actual_result = res.data.decode()
+        expected_result = 'name,capital,region,lat,long,population,alpha3Code\r\nAfghanistan,Kabul,Asia,33,65,27657145,ASM\r\n'
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data.decode(), expected_result)
