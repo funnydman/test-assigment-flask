@@ -27,7 +27,7 @@ class UserSignUp(Resource):
         data = self.parser.parse_args()
 
         if User.find_by_username(data['username']):
-            return {'message': f"User {data['username']} already exists"}
+            return {'message': f"User {data['username']} already exists"}, 409
 
         new_user = User(
             username=data['username'],
@@ -42,10 +42,10 @@ class UserSignUp(Resource):
             access_token = create_access_token(identity=data['username'])
             refresh_token = create_refresh_token(identity=data['username'])
             return {
-                'message': f"User {data['username']} was created",
-                'access_token': access_token,
-                'refresh_token': refresh_token
-            }
+                       'message': f"User {data['username']} was created",
+                       'access_token': access_token,
+                       'refresh_token': refresh_token
+                   }, 201
         except Exception as e:
             return {'message': 'Something went wrong'}, 500
 
@@ -64,14 +64,14 @@ class UserSignIn(Resource):
         data = self.parser.parse_args()
         current_user = None
         if data.get('username') and data.get('email'):
-            return {'message': 'Use username or email not both at the same time to sign in'}
+            return {'message': 'Use username or email not both at the same time to sign in'}, 400
         elif data.get('username'):
             current_user = User.find_by_username(data['username'])
         elif data.get('email'):
             current_user = User.find_by_email(data['email'])
 
         if current_user is None:
-            return {'message': f"User {data['username']} doesn\'t exist"}
+            return {'message': f"User {data['username']} doesn\'t exist"}, 404
 
         if User.verify_hash(data['password'], current_user.password):
             access_token = create_access_token(identity=(data.get('username') or data.get('email')))
@@ -80,7 +80,7 @@ class UserSignIn(Resource):
                        'message': f'Logged in as {current_user.username}',
                        'access_token': access_token,
                        'refresh_token': refresh_token
-                   }, 201, {'Set-Cookie': 'access_token_cookie=' + access_token}
+                   }, 200, {'Set-Cookie': 'access_token_cookie=' + access_token}
         else:
             return {'message': 'Wrong credentials'}
 
@@ -115,12 +115,3 @@ class TokenRefresh(Resource):
         current_user = get_jwt_identity()
         access_token = create_access_token(identity=current_user)
         return {'access_token': access_token}
-
-
-class AllUsers(Resource):
-    @jwt_required
-    def get(self):
-        return User.return_all()
-
-    def delete(self):
-        return User.delete_all()
