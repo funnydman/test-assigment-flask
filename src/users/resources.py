@@ -71,7 +71,7 @@ class UserSignIn(Resource):
             current_user = User.find_by_email(data['email'])
 
         if current_user is None:
-            return {'message': f"User {data['username']} doesn\'t exist"}, 404
+            return {'message': f"User does not exist"}, 404
 
         if User.verify_hash(data['password'], current_user.password):
             access_token = create_access_token(identity=(data.get('username') or data.get('email')))
@@ -82,7 +82,7 @@ class UserSignIn(Resource):
                        'refresh_token': refresh_token
                    }, 200, {'Set-Cookie': 'access_token_cookie=' + access_token}
         else:
-            return {'message': 'Wrong credentials'}
+            return {'message': 'Wrong credentials'}, 400
 
 
 class UserLogoutAccess(Resource):

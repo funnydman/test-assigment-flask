@@ -31,12 +31,10 @@ class Index(Resource):
 class UploadCSVFile(Resource):
     @property
     def parser(self):
-        help_msg = 'This field cannot be blank'
         parser = reqparse.RequestParser()
-        parser.add_argument('file_content', help=help_msg, required=True)
+        parser.add_argument('file_content', help=HELP_MESSAGE, required=True)
         return parser
 
-    @jwt_required
     def post(self):
         data = self.parser.parse_args()
         try:

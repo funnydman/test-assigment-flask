@@ -3,6 +3,7 @@ import unittest
 from src.app import app, db
 from src.run import API_VERSION
 from src.users.models import User
+from tests import utils
 
 TEST_USER = {
     'username': 'selena',
@@ -13,14 +14,9 @@ TEST_USER = {
 }
 
 
-def init_test_database():
-    app.config.from_pyfile(f'main/settings/test.py')
-    db.create_all()
-
-
 class TestUsersModels(unittest.TestCase):
     def setUp(self):
-        init_test_database()
+        utils.init_test_database()
 
         self.new_user = User(
             username=TEST_USER['username'],
@@ -57,7 +53,7 @@ class TestUsersModels(unittest.TestCase):
 
 class TestUsersApi(unittest.TestCase):
     def setUp(self):
-        init_test_database()
+        utils.init_test_database()
 
         self.app = app.test_client()
         self.app.testing = True
@@ -74,16 +70,49 @@ class TestUsersApi(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_signin(self):
-        res = self.app.post(f'{API_VERSION}/signin', data={
+    def test_signin_with_username(self):
+        data = {
             'username': TEST_USER['username'],
             'password': TEST_USER['password']
-        })
+        }
+        res = self.app.post(f'{API_VERSION}/signin', data=data)
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.get_json()['message'], 'Logged in as selena')
         self.assertIsNotNone(res.get_json()['access_token'])
         self.assertIsNotNone(res.get_json()['refresh_token'])
+
+    def test_signin_with_email(self):
+        data = {
+            'email': TEST_USER['email'],
+            'password': TEST_USER['password']
+        }
+        res = self.app.post(f'{API_VERSION}/signin', data=data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.get_json()['message'], 'Logged in as selena')
+        self.assertIsNotNone(res.get_json()['access_token'])
+        self.assertIsNotNone(res.get_json()['refresh_token'])
+
+    def test_signin_with_both_fields(self):
+        data = {
+            'email': TEST_USER['email'],
+            'username': TEST_USER['username'],
+            'password': TEST_USER['password']
+        }
+        res = self.app.post(f'{API_VERSION}/signin', data=data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.get_json()['message'], 'Use username or email not both at the same time to sign in')
+
+    def test_signin_no_user(self):
+        data = {
+            'username': "random_name1111",
+            'password': TEST_USER['password']
+        }
+        res = self.app.post(f'{API_VERSION}/signin', data=data)
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.get_json()['message'], 'User does not exist')
 
     def test_signup(self):
         data = {
