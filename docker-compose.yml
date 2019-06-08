@@ -3,9 +3,11 @@ services:
   backend:
     build: .
     ports:
-      - 5000:5000
+      - "5000:5000"
     env_file:
       - .docker.flaskenv
+    depends_on:
+      - postgres
   postgres:
     image: "postgres:9.6-alpine"
     expose:

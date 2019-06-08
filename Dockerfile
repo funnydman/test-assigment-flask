@@ -1,8 +1,5 @@
 FROM python:3.7-alpine3.9
 
-RUN pip3 install --no-cache-dir pipenv
-RUN apk add libpq wkhtmltopdf
-
 COPY Pipfile /
 COPY Pipfile.lock /
 
@@ -11,12 +8,15 @@ RUN apk add --no-cache --virtual .build-deps \
     python3-dev \
     musl-dev \
     postgresql-dev \
-    && set -ex && pipenv install --deploy --system \
+    libpq \
+    wkhtmltopdf \
+    && pip3 install --no-cache-dir pipenv \
+    && pipenv install --deploy --system \
     && apk del --no-cache .build-deps
 
-COPY . /usr/src/app
+ADD . /usr/src/app
 WORKDIR /usr/src/app
 
-USER 1000:1000
+RUN chmod 755 /usr/src/app/docker-entrypoint.sh
 
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["/usr/src/app/docker-entrypoint.sh"]

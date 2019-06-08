@@ -10,6 +10,8 @@ import requests
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, reqparse
 
+from src.constants import required_msg
+
 BASE_DIR = os.path.dirname(
     os.path.dirname(
         os.path.abspath(__file__)
@@ -28,7 +30,7 @@ class UploadCSVFile(Resource):
     @property
     def parser(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('file_content', help='This field cannot be blank', required=True)
+        parser.add_argument('file_content', help=required_msg, required=True)
         return parser
 
     def post(self):

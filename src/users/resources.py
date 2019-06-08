@@ -8,19 +8,19 @@ from flask_jwt_extended import (
 )
 from flask_restful import Resource, reqparse
 
+from src.constants import required_msg
 from src.users.models import User, RevokedTokenModel
 
 
 class UserSignUp(Resource):
     @property
     def parser(self):
-        help_msg = 'This field cannot be blank'
         parser = reqparse.RequestParser()
-        parser.add_argument('username', help=help_msg, required=True)
-        parser.add_argument('password', help=help_msg, required=True)
-        parser.add_argument('name', help=help_msg, required=True)
-        parser.add_argument('surname', help=help_msg, required=True)
-        parser.add_argument('email', help=help_msg, required=True)
+        parser.add_argument('username', help=required_msg, required=True)
+        parser.add_argument('password', help=required_msg, required=True)
+        parser.add_argument('name', help=required_msg, required=True)
+        parser.add_argument('surname', help=required_msg, required=True)
+        parser.add_argument('email', help=required_msg, required=True)
         return parser
 
     def post(self):
@@ -53,11 +53,10 @@ class UserSignUp(Resource):
 class UserSignIn(Resource):
     @property
     def parser(self):
-        help_msg = 'This field cannot be blank'
         parser = reqparse.RequestParser()
-        parser.add_argument('username', help=help_msg)
-        parser.add_argument('email', help=help_msg)
-        parser.add_argument('password', help=help_msg)
+        parser.add_argument('username', help=required_msg)
+        parser.add_argument('email', help=required_msg)
+        parser.add_argument('password', help=required_msg)
         return parser
 
     def post(self):
