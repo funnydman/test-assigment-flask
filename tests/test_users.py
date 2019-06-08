@@ -1,8 +1,10 @@
 import unittest
 
+from passlib.hash import pbkdf2_sha256 as sha256
+
 from src.app import app, db
 from src.run import API_VERSION
-from src.users.models import User
+from src.users.models import User, RevokedTokenModel
 from tests import utils
 
 TEST_USER = {
@@ -27,16 +29,34 @@ class TestUsersModels(unittest.TestCase):
         )
         self.new_user.save_to_db()
 
+        self.revoken_token = RevokedTokenModel(
+            id=1,
+            jti='some string'
+        )
+
     def tearDown(self):
         db.session.remove()
         db.drop_all()
 
-    def test_user_data(self):
+    def test_user_data_model(self):
         self.assertEqual(TEST_USER['username'], self.new_user.username)
         self.assertTrue(User.verify_hash(TEST_USER['password'], self.new_user.password))
         self.assertEqual(TEST_USER['name'], self.new_user.name)
         self.assertEqual(TEST_USER['surname'], self.new_user.surname)
         self.assertEqual(TEST_USER['email'], self.new_user.email)
+
+    def test_revoken_token_model(self):
+        self.assertEqual(self.revoken_token.id, 1)
+        self.assertEqual(self.revoken_token.jti, 'some string')
+
+    def test_is_jti_blacklisted(self):
+        self.revoken_token.add()
+        jti = self.revoken_token.jti
+        self.assertEqual(RevokedTokenModel.is_jti_blacklisted(jti), True)
+
+    def test_is_not_jti_blacklisted(self):
+        jti = self.revoken_token.jti
+        self.assertEqual(RevokedTokenModel.is_jti_blacklisted(jti), False)
 
     def test_find_by_username(self):
         user = User.find_by_username(TEST_USER['username'])
@@ -49,6 +69,17 @@ class TestUsersModels(unittest.TestCase):
     def test_return_all(self):
         user = User.return_all()
         self.assertEqual(self.new_user.username, TEST_USER['username'])
+
+    def test_generate_hash(self):
+        user_hash = User.generate_hash(self.new_user.password)
+        self.assertTrue(user_hash.startswith('$pbkdf2-sha256$29000$'))
+
+    def test_verify_hash(self):
+        self.assertTrue(sha256.verify(TEST_USER['password'], self.new_user.password))
+
+    def test_delete_all(self):
+        User.delete_all()
+        self.assertEqual(db.session.query(User).count(), 0)
 
 
 class TestUsersApi(unittest.TestCase):
