@@ -1,0 +1,26 @@
+version: '3.4'
+services:
+  backend:
+    build:
+      dockerfile: deployment/Dockerfile.prod
+      context: .
+    env_file:
+      - .flaskenv.prod
+    depends_on:
+      - postgres
+  postgres:
+    image: "postgres:9.6-alpine"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - .flaskenv.prod
+  nginx:
+    build:
+      dockerfile: deployment/nginx/Dockerfile
+      context: .
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+volumes:
+  pgdata:

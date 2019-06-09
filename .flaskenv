@@ -1,9 +1,2 @@
 FLASK_APP=src.run
 FLASK_ENV=development
-
-POSTGRES_DB=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=example
-
-POSTGRES_PORT=5432
-POSTGRES_HOST=localhost

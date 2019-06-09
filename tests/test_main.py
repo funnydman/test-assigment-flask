@@ -110,3 +110,26 @@ class TestUsersModels(unittest.TestCase):
         expected_result = 'name,capital,region,lat,long,population,alpha3Code\r\nAfghanistan,Kabul,Asia,33,65,27657145,ASM\r\n'
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.data.decode(), expected_result)
+
+    def test_countries_pdf(self):
+        keys = ('name', 'capital', 'region', 'lat', 'long', 'population', 'alpha3Code')
+        actual_data = [{
+            "name": "Afghanistan",
+            "capital": "Kabul",
+            "region": "Asia",
+            "subregion": "Southern Asia",
+            "population": 27657145,
+            "latlng": [
+                33,
+                65
+            ],
+            "alpha3Code": "ASM"
+        }]
+
+        with requests_mock.Mocker() as m:
+            m.get('https://restcountries.eu/rest/v2/all', json=actual_data)
+            res = self.app.get(f'{API_VERSION}/countries/pdf', headers={'Authorization': 'Bearer ' + self.get_token()})
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.headers['Content-type'], 'application/pdf')
+        self.assertEqual(res.headers['Content-Disposition'], 'attachment; filename=countries.pdf')

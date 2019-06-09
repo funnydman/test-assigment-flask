@@ -15,11 +15,11 @@ JWT_BLACKLIST_TOKEN_CHECKS = ('access', 'refresh')
 
 DATABASE = {
     'drivername': 'postgres',
-    'database': os.environ['POSTGRES_DB'],
-    'username': os.environ['POSTGRES_USER'],
-    'password': os.environ['POSTGRES_PASSWORD'],
-    'host': os.environ['POSTGRES_HOST'],
-    'port': int(os.environ['POSTGRES_PORT'])
+    'database': os.environ.get('POSTGRES_DB', 'devdb'),
+    'username': os.environ.get('POSTGRES_USER', 'admindev'),
+    'password': os.environ.get('POSTGRES_PASSWORD', 'admindev'),
+    'host': os.environ.get('POSTGRES_HOST', 'localhost'),
+    'port': int(os.environ.get('POSTGRES_PORT', 5432))
 }
 
 SQLALCHEMY_DATABASE_URI = URL(**DATABASE)

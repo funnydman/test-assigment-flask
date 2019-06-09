@@ -7,6 +7,7 @@ from datetime import datetime
 import flask
 import pdfkit
 import requests
+from flask import render_template, Response
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, reqparse
 
@@ -81,9 +82,21 @@ class ExternalCSV(Resource):
 class ExternalPDF(Resource):
     @jwt_required
     def get(self):
-        pdf = pdfkit.PDFKit('asd', 'string')
-
-        resp = flask.make_response(pdf.to_pdf())
+        keys = ('name', 'capital', 'region', 'lat', 'long', 'population', 'alpha3Code')
+        parsed = []
+        buffer = io.StringIO()
+        data = requests.get('https://restcountries.eu/rest/v2/all')
+        for line in data.json():
+            latlng = line.get('latlng')
+            if latlng:
+                line['lat'] = line['latlng'][0]
+                line['long'] = line['latlng'][1]
+            parsed.append({k: v for k, v in line.items() if k in keys})
+        # TODO: beatify formatting
+        res = render_template('to_pdf.html', parsed=parsed)
+        pdf = pdfkit.from_string(res, buffer.getvalue())
+        resp = Response(pdf)
+        resp.headers["Content-Disposition"] = "attachment; filename=countries.pdf"
         resp.headers["Content-type"] = "application/pdf"
 
         return resp

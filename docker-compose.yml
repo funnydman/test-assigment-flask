@@ -5,9 +5,11 @@ services:
     ports:
       - "5000:5000"
     env_file:
-      - .docker.flaskenv
+      - .flaskenv.dev
     depends_on:
       - postgres
+    volumes:
+      - .:/usr/src/app
   postgres:
     image: "postgres:9.6-alpine"
     expose:
@@ -15,6 +17,6 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:
-      - .docker.flaskenv
+      - .flaskenv.dev
 volumes:
   pgdata:

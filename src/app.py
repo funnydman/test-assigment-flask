@@ -14,13 +14,11 @@ BASE_DIR = os.path.dirname(
 
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=os.path.join(PROJECT_DIR, 'templates'))
 
 api = Api(app)
-try:
-    app.config.from_pyfile('main/settings/conf.py')
-except Exception as e:
-    logger.warning(f'Can\'t load config: {e}')
+
+app.config.from_pyfile('main/settings/conf.py')
 
 db = SQLAlchemy(app)
 
