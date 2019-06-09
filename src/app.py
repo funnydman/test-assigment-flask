@@ -6,7 +6,7 @@ from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 
-logger = getLogger()
+logger = getLogger(__name__)
 
 BASE_DIR = os.path.dirname(
     os.path.abspath(__file__)

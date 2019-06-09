@@ -1,3 +1,5 @@
+from logging import getLogger
+
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -7,19 +9,20 @@ from flask_jwt_extended import (
 )
 from flask_restful import Resource, reqparse
 
-from src.constants import required_msg
 from src.users.models import User, RevokedTokenModel
+
+logger = getLogger(__name__)
 
 
 class UserSignUp(Resource):
     @property
     def parser(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('username', help=required_msg, required=True)
-        parser.add_argument('password', help=required_msg, required=True)
-        parser.add_argument('name', help=required_msg, required=True)
-        parser.add_argument('surname', help=required_msg, required=True)
-        parser.add_argument('email', help=required_msg, required=True)
+        parser.add_argument('username', required=True)
+        parser.add_argument('password', required=True)
+        parser.add_argument('name', required=True)
+        parser.add_argument('surname', required=True)
+        parser.add_argument('email', required=True)
         return parser
 
     def post(self):
@@ -46,6 +49,7 @@ class UserSignUp(Resource):
                        'refresh_token': refresh_token
                    }, 201
         except Exception as e:
+            logger.error(e)
             return {'message': 'Something went wrong'}, 500
 
 
@@ -53,9 +57,9 @@ class UserSignIn(Resource):
     @property
     def parser(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('username', help=required_msg)
-        parser.add_argument('email', help=required_msg)
-        parser.add_argument('password', help=required_msg)
+        parser.add_argument('username')
+        parser.add_argument('email')
+        parser.add_argument('password', required=True)
         return parser
 
     def post(self):
@@ -69,7 +73,7 @@ class UserSignIn(Resource):
             current_user = User.find_by_email(data['email'])
 
         if current_user is None:
-            return {'message': f"User does not exist"}, 404
+            return {'message': "User does not exist"}, 404
 
         if User.verify_hash(data['password'], current_user.password):
             access_token = create_access_token(identity=(data.get('username') or data.get('email')))
@@ -91,6 +95,7 @@ class UserLogoutAccess(Resource):
             revoked_token.add()
             return {'message': 'Access token has been revoked'}
         except Exception as e:
+            logger.error(e)
             return {'message': 'Something went wrong'}, 500
 
 
@@ -103,6 +108,7 @@ class UserLogoutRefresh(Resource):
             revoked_token.add()
             return {'message': 'Refresh token has been revoked'}
         except Exception as e:
+            logger.error(e)
             return {'message': 'Something went wrong'}, 500
 
 

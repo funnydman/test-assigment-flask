@@ -19,8 +19,6 @@ def check_if_token_in_blacklist(decrypted_token):
 
 API_VERSION = '/api/v1'
 
-API_URL = f"http://127.0.0.1:5000{API_VERSION}"
-
 api.add_resource(main_resources.Index, '/')
 api.add_resource(main_resources.UploadCSVFile, f'{API_VERSION}/upload')
 api.add_resource(main_resources.ExternalAPI, f'{API_VERSION}/countries/population')

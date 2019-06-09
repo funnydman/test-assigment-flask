@@ -111,6 +111,9 @@ class TestUsersModels(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.data.decode(), expected_result)
 
+        self.assertEqual(res.headers['Content-type'], 'text/csv')
+        self.assertEqual(res.headers['Content-Disposition'], 'attachment; filename=population.csv')
+
     def test_countries_pdf(self):
         keys = ('name', 'capital', 'region', 'lat', 'long', 'population', 'alpha3Code')
         actual_data = [{
